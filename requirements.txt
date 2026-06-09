@@ -1,0 +1,5 @@
+pygame>=2.5
+requests>=2.31
+paho-mqtt>=1.6
+numpy>=1.21
+evdev>=1.6
