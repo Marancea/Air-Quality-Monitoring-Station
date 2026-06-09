@@ -88,6 +88,24 @@ class OpenAQClient:
             return []
         return data.get("results", [])
 
+    def _sensor_param_map(self, location_id):
+        """
+        Return {sensor_id: parameter_name} for a station, via the /sensors
+        endpoint. These ids match the 'sensorsId' values from /latest;
+        the ids in the /locations listing can differ, which previously
+        caused every reading to be skipped (empty pollutant data).
+        """
+        data = self._get(f"/locations/{location_id}/sensors")
+        out = {}
+        if not data:
+            return out
+        for s in data.get("results", []):
+            p = (s.get("parameter") or {})
+            name = p.get("name")
+            if name in config.PARAM_LABELS:
+                out[s.get("id")] = name
+        return out
+
     def fetch_average(self, lat, lon, location_name):
         """
         Fetch all nearby stations and average each pollutant across the
@@ -107,13 +125,8 @@ class OpenAQClient:
 
         for station in stations[:config.MAX_STATIONS]:
             loc_id = station.get("id")
-            # Map this station's sensor ids to parameter names.
-            sensor_param = {}
-            for s in station.get("sensors", []):
-                p = (s.get("parameter") or {})
-                name = p.get("name")
-                if name in config.PARAM_LABELS:
-                    sensor_param[s.get("id")] = name
+            # Map sensor ids to parameters via /sensors (ids match /latest).
+            sensor_param = self._sensor_param_map(loc_id)
 
             if not sensor_param:
                 continue
