@@ -29,7 +29,6 @@
  */
 
 #include <WiFi.h>
-#include <WiFiMulti.h>
 #include <ESPmDNS.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
@@ -38,13 +37,9 @@
 // SETTINGS  -  edit these to match your setup
 // ----------------------------------------------------------------------------
 
-// WiFi networks (the Pi must be on the same one). The board will connect
-// to whichever of these is available with the strongest signal. Add as
-// many as you like by copying the wifiMulti.addAP(...) lines in setup().
-const char* WIFI1_SSID     = "marancea";        // <-- network 1 name
-const char* WIFI1_PASSWORD = "craiova1";    // <-- network 1 password
-const char* WIFI2_SSID     = "INCESA-WIFI";           // <-- network 2 name
-const char* WIFI2_PASSWORD = "accesnet";       // <-- network 2 password
+// WiFi (the network the Pi is also on)
+const char* WIFI_SSID     = "marancea";       // <-- your network name
+const char* WIFI_PASSWORD = "craiova1";       // <-- your network password
 
 // MQTT broker = the Raspberry Pi.
 // The sketch first tries to find the Pi by its hostname over mDNS
@@ -69,7 +64,6 @@ const int SDS_TX_PIN = 17;   // ESP32 TX2  -> SDS011 RXD (blue)
 WiFiClient   wifiClient;
 PubSubClient mqtt(wifiClient);
 HardwareSerial sds(2);                 // use UART2 for the sensor
-WiFiMulti    wifiMulti;                // manages the list of WiFi networks
 
 IPAddress brokerIP;                    // resolved broker address
 bool brokerResolved = false;
@@ -118,18 +112,17 @@ bool readSDS(float &pm25, float &pm10) {
 // ----------------------------------------------------------------------------
 void ensureWifi() {
   if (WiFi.status() == WL_CONNECTED) return;
-  Serial.print("WiFi connecting (trying known networks)");
+  Serial.print("WiFi connecting to ");
+  Serial.print(WIFI_SSID);
   WiFi.mode(WIFI_STA);
-  // wifiMulti.run() scans and connects to the best available known network.
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   unsigned long start = millis();
-  while (wifiMulti.run() != WL_CONNECTED && millis() - start < 20000) {
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 20000) {
     delay(500);
     Serial.print(".");
   }
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.print(" connected to ");
-    Serial.print(WiFi.SSID());
-    Serial.print(", IP=");
+    Serial.print(" connected, IP=");
     Serial.println(WiFi.localIP());
   } else {
     Serial.println(" FAILED (will retry)");
@@ -225,10 +218,6 @@ void setup() {
 
   // SDS011 talks at 9600 baud, 8N1.
   sds.begin(9600, SERIAL_8N1, SDS_RX_PIN, SDS_TX_PIN);
-
-  // Register the known WiFi networks. Add more by copying this line.
-  wifiMulti.addAP(WIFI1_SSID, WIFI1_PASSWORD);
-  wifiMulti.addAP(WIFI2_SSID, WIFI2_PASSWORD);
 
   ensureWifi();
 
