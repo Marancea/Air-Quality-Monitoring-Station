@@ -17,3 +17,5 @@ Thumbs.db
 # Local data cache the app may write
 *.cache
 cache.json
+api_client.py.old
+__pycache__/

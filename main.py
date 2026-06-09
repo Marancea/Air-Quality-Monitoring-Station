@@ -52,6 +52,7 @@ class App:
         import pygame
         self.pygame = pygame
         pygame.init()
+        pygame.mouse.set_visible(False)
 
         if self.windowed:
             pygame.display.init()

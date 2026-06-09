@@ -11,7 +11,7 @@ Edit OPENAQ_API_KEY and the MQTT settings to match your setup.
 # ---------------------------------------------------------------------------
 # OpenAQ v3 REQUIRES an API key, sent in the "X-API-Key" header.
 # Get yours (free) at https://explore.openaq.org -> account settings.
-OPENAQ_API_KEY = "PUT-YOUR-OPENAQ-API-KEY-HERE"
+OPENAQ_API_KEY = "81e2bf92d15e3ef34c19d3fbc83b2386a307ecdb6be6ef6485e0ff492806f47e"
 
 OPENAQ_BASE_URL = "https://api.openaq.org/v3"
 
@@ -33,7 +33,7 @@ OPENMETEO_URL = "https://api.open-meteo.com/v1/forecast"
 ENABLE_TEMPERATURE = True
 
 # Measurements older than this (seconds) are treated as stale and ignored.
-STALE_AFTER = 6 * 3600           # 6 hours
+STALE_AFTER = 24 * 3600           # 6 hours
 
 # HTTP timeout for each request (seconds).
 HTTP_TIMEOUT = 10
